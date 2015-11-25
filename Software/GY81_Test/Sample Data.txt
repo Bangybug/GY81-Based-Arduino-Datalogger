@@ -1,0 +1,109 @@
+as been initialized
+Temperature: 194 *0.1 deg C
+Pressure: 101244 Pa
+x=0.06g,y=0.07g,z=0.82g
+GX=6.96 GY=-0.49 GZ=5.70 T=17.51 deg C
+MX=270.48 MY=-548.32 MZ=-61.64   	Heading:	5.22 Radians   	298.88 Degrees   	
+
+Temperature: 194 *0.1 deg C
+Pressure: 101238 Pa
+x=0.07g,y=0.06g,z=0.82g
+GX=6.89 GY=-0.42 GZ=5.70 T=17.49 deg C
+MX=270.48 MY=-548.32 MZ=-60.72   	Heading:	5.22 Radians   	298.88 Degrees   	
+
+Temperature: 194 *0.1 deg C
+Pressure: 101230 Pa
+x=0.06g,y=0.07g,z=0.81g
+GX=6.89 GY=-0.42 GZ=5.70 T=17.49 deg C
+MX=272.32 MY=-550.16 MZ=-60.72   	Heading:	5.22 Radians   	298.95 Degrees   	
+
+Temperature: 194 *0.1 deg C
+Pressure: 101238 Pa
+x=0.07g,y=0.07g,z=0.81g
+GX=6.89 GY=-0.42 GZ=5.70 T=17.71 deg C
+MX=271.40 MY=-549.24 MZ=-59.80   	Heading:	5.22 Radians   	298.91 Degrees   	
+
+Temperature: 195 *0.1 deg C
+Pressure: 101241 Pa
+x=0.07g,y=0.06g,z=0.82g
+GX=6.89 GY=-0.42 GZ=5.70 T=17.76 deg C
+MX=271.40 MY=-548.32 MZ=-61.64   	Heading:	5.22 Radians   	298.95 Degrees   	
+
+Temperature: 195 *0.1 deg C
+Pressure: 101233 Pa
+x=0.07g,y=0.06g,z=0.82g
+GX=6.89 GY=-0.42 GZ=5.70 T=17.84 deg C
+MX=270.48 MY=-547.40 MZ=-59.80   	Heading:	5.22 Radians   	298.91 Degrees   	
+
+Temperature: 195 *0.1 deg C
+Pressure: 101233 Pa
+x=0.08g,y=0.06g,z=0.82g
+GX=6.96 GY=-0.42 GZ=5.77 T=17.87 deg C
+MX=271.40 MY=-548.32 MZ=-57.96   	Heading:	5.22 Radians   	298.95 Degrees   	
+
+Temperature: 195 *0.1 deg C
+Pressure: 101242 Pa
+x=0.07g,y=0.05g,z=0.81g
+GX=6.89 GY=-0.42 GZ=5.77 T=17.93 deg C
+MX=269.56 MY=-548.32 MZ=-62.56   	Heading:	5.22 Radians   	298.80 Degrees   	
+
+Temperature: 196 *0.1 deg C
+Pressure: 101236 Pa
+x=0.07g,y=0.06g,z=0.82g
+GX=6.96 GY=-0.42 GZ=5.70 T=17.95 deg C
+MX=269.56 MY=-550.16 MZ=-61.64   	Heading:	5.21 Radians   	298.72 Degrees   	
+
+Temperature: 196 *0.1 deg C
+Pressure: 101233 Pa
+x=0.07g,y=0.06g,z=0.82g
+GX=6.96 GY=-0.42 GZ=5.77 T=17.97 deg C
+MX=270.48 MY=-548.32 MZ=-60.72   	Heading:	5.22 Radians   	298.88 Degrees   	
+
+Temperature: 196 *0.1 deg C
+Pressure: 101233 Pa
+x=0.07g,y=0.06g,z=0.83g
+GX=6.89 GY=-0.42 GZ=5.77 T=18.00 deg C
+MX=270.48 MY=-548.32 MZ=-60.72   	Heading:	5.22 Radians   	298.88 Degrees   	
+
+Temperature: 196 *0.1 deg C
+Pressure: 101236 Pa
+x=0.07g,y=0.06g,z=0.82g
+GX=6.89 GY=-0.42 GZ=5.70 T=18.04 deg C
+MX=270.48 MY=-549.24 MZ=-61.64   	Heading:	5.22 Radians   	298.84 Degrees   	
+
+Temperature: 197 *0.1 deg C
+Pressure: 101236 Pa
+x=0.07g,y=0.07g,z=0.82g
+GX=6.96 GY=-0.42 GZ=5.77 T=18.09 deg C
+MX=270.48 MY=-547.40 MZ=-58.88   	Heading:	5.22 Radians   	298.91 Degrees   	
+
+Temperature: 197 *0.1 deg C
+Pressure: 101251 Pa
+x=-0.88g,y=0.27g,z=-0.26g
+GX=4.52 GY=1.74 GZ=8.90 T=18.16 deg C
+MX=543.72 MY=48.76 MZ=-161.00   	Heading:	0.14 Radians   	7.74 Degrees   	
+
+Temperature: 198 *0.1 deg C
+Pressure: 101231 Pa
+x=2.17g,y=0.54g,z=-0.05g
+GX=-102.47 GY=-123.76 GZ=-59.48 T=18.27 deg C
+MX=-409.40 MY=-225.40 MZ=-28.52   	Heading:	3.69 Radians   	211.45 Degrees   	
+
+Temperature: 199 *0.1 deg C
+Pressure: 101243 Pa
+x=0.25g,y=-0.92g,z=0.01g
+GX=0.63 GY=3.55 GZ=23.03 T=18.32 deg C
+MX=91.08 MY=-372.60 MZ=585.12   	Heading:	5.00 Radians   	286.35 Degrees   	
+
+Temperature: 200 *0.1 deg C
+Pressure: 101228 Pa
+x=0.06g,y=-0.04g,z=0.88g
+GX=17.11 GY=13.50 GZ=2.85 T=18.37 deg C
+MX=245.64 MY=-552.92 MZ=1.84   	Heading:	5.18 Radians   	296.57 Degrees   	
+
+Temperature: 200 *0.1 deg C
+Pressure: 101240 Pa
+x=0.05g,y=0.07g,z=0.82g
+GX=6.82 GY=-0.21 GZ=5.50 T=18.38 deg C
+MX=282.44 MY=-544.64 MZ=-24.84   	Heading:	5.24 Radians   	300.03 Degrees   	
+
