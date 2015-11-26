@@ -76,7 +76,7 @@ elapsedMillis timeElapsed;
 
 //----------SD Card Variables-------------------
 const int chipSelect = 10;
-char fileName[] = "log00.csv";
+char fileName[] = "log000.csv";
 
 //-----------BMP085 Barometer Functions---------
 void bmp085Init(){
@@ -384,15 +384,20 @@ void readFrom(int DEVICE, byte address , int num ,byte buff[]){
 }
 
 //-----------Extra SD Card Functions-----
-void writeData(String data, char* file){
+void writeData(String data, char* file, boolean finishLine){
   File dataFile = SD.open(file, FILE_WRITE);
 
   // if the file is available, write to it:
   if (dataFile) {
-    dataFile.println(data);
-    dataFile.close();
+    if (finishLine){
+      dataFile.println(data);
+      dataFile.close();
+    } else {
+      dataFile.print(data);
+      dataFile.close();
+    }
     // print to the serial port too:
-    Serial.println(data);
+    //Serial.println(data);
   }
   // if the file isn't open, pop up an error:
   else {
@@ -417,7 +422,7 @@ void setup(){
     Serial.println("Gyro has been initialized"); 
 
     hmc5883lInit(1.3, HMC5883L_MEASURE_CONT);
-    Serial.println("Gyro has been initialized"); 
+    Serial.println("Magnemometer has been initialized"); 
   
         Serial.print("Initializing SD card...");
         // see if the card is present and can be initialized:
@@ -427,9 +432,10 @@ void setup(){
           return;
         }
         
-        for (uint8_t i = 0; i < 100; i++){
-          fileName[3] = i/10 + '0';
-          fileName[4] = i%10 + '0';
+        for (uint8_t i = 0; i < 1000; i++){
+          fileName[3] = i/100 + '0';
+          fileName[4] = i/10 + '0';
+          fileName[5] = i%10 + '0';
           if (SD.exists(fileName)) continue;
           break;
         }
@@ -451,7 +457,7 @@ void setup(){
         dataString += "my, ";
         dataString += "mz, ";
         dataString += "heading (rad)";
-        writeData(dataString, fileName);
+        writeData(dataString, fileName, true);
 
         timeElapsed = 0;
 }
@@ -491,6 +497,9 @@ void loop(){
     dataString += tmp_z1;
     dataString += ",";
     
+    writeData(dataString, fileName, false);
+    dataString = "";
+    
     //Gyro
     int gyro[4];
     itg3205GetGyroscopeData(gyro);
@@ -517,8 +526,11 @@ void loop(){
     char tmp_turetemp[15] = ""; 
     dtostrf(turetemp,5,2,&tmp_turetemp[0]);
     dataString += tmp_turetemp;
-    dataString += ",";
-
+    dataString += ", ";
+    
+    writeData(dataString, fileName, false);
+    dataString = "";
+    
     //Magnetometer
     int mag[3];
     hmc5883GetMagnetometerData(mag);
@@ -526,20 +538,20 @@ void loop(){
     char tmp_mx[15] = ""; 
     dtostrf(mx,5,2,&tmp_mx[0]);
     dataString += tmp_mx;
-    dataString += ",";
+    dataString += ", ";
     
     float my = mag[1] * m_scale;
     char tmp_my[15] = ""; 
     dtostrf(my,5,2,&tmp_my[0]);
     dataString += tmp_my;
-    dataString += ",";
+    dataString += ", ";
     
     float mz = mag[2] * m_scale;
     char tmp_mz[15] = ""; 
     dtostrf(mz,5,2,&tmp_mz[0]);
     dataString += tmp_mz;
-    dataString += ",";
-
+    dataString += ", ";
+    
     int MilliGauss_OnThe_XAxis = mx;
     float heading = atan2(my, mx);
     // Once you have your heading, you must then add your 'Declination Angle', which is  the 'Error' of the magnetic field in your location.
@@ -553,6 +565,6 @@ void loop(){
     dataString += tmp_heading;
     
     //SD Card
-    Serial.println(dataString);
-    writeData(dataString, fileName);    
+    //Serial.println(dataString);
+    writeData(dataString, fileName, true);    
 }
