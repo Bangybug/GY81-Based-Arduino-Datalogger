@@ -37,6 +37,8 @@
 #define HMC5883L_DATA 0x03
 #define HMC5883L_M_TO_READ 6 // 2 bytes for each axis x, y, z
 
+#define DEBUG false
+
 //-----------BMP085 Barometer Variables---------
 const unsigned char OSS = 0;  // Oversampling Setting
 // Calibration values
@@ -397,37 +399,37 @@ void writeData(String data, char* file, boolean finishLine){
       dataFile.close();
     }
     // print to the serial port too:
-    //Serial.println(data);
+    if(DEBUG) Serial.println(data);
   }
   // if the file isn't open, pop up an error:
   else {
-    Serial.print("error opening ");
-    Serial.println(file);
+    if(DEBUG) Serial.print("error opening ");
+    if(DEBUG) Serial.println(file);
     delay(1000);
   }
 }
 
 //-----------Setup & Loop---------
 void setup(){
-    Serial.begin(9600);
+    if(DEBUG) Serial.begin(9600);
     Wire.begin();
     
     bmp085Init(); //Fill magic numbers from internal eeprom
-    Serial.println("Barometer has been initialized"); 
+    if(DEBUG) Serial.println("Barometer has been initialized"); 
     
     bma180Init(8); 
-    Serial.println("Accelerometer has been initialized"); 
+    if(DEBUG) Serial.println("Accelerometer has been initialized"); 
     
     itg3205Init();
-    Serial.println("Gyro has been initialized"); 
+    if(DEBUG) Serial.println("Gyro has been initialized"); 
 
     hmc5883lInit(1.3, HMC5883L_MEASURE_CONT);
-    Serial.println("Magnemometer has been initialized"); 
+    if(DEBUG) Serial.println("Magnemometer has been initialized"); 
   
-        Serial.print("Initializing SD card...");
+        if(DEBUG) Serial.print("Initializing SD card...");
         // see if the card is present and can be initialized:
         if (!SD.begin(chipSelect)) {
-          Serial.println("Card failed, or not present");
+          if(DEBUG) Serial.println("Card failed, or not present");
           // don't do anything more:
           return;
         }
@@ -440,8 +442,8 @@ void setup(){
           break;
         }
         
-        Serial.print("File name: ");
-        Serial.println(fileName);
+        if(DEBUG) Serial.print("File name: ");
+        if(DEBUG) Serial.println(fileName);
         
         String dataString = "";
         dataString += "Time (Milis), ";
@@ -565,6 +567,6 @@ void loop(){
     dataString += tmp_heading;
     
     //SD Card
-    //Serial.println(dataString);
+    if(DEBUG) Serial.println(dataString);
     writeData(dataString, fileName, true);    
 }
