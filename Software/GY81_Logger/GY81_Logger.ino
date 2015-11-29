@@ -37,6 +37,12 @@
 #define HMC5883L_DATA 0x03
 #define HMC5883L_M_TO_READ 6 // 2 bytes for each axis x, y, z
 
+#define OFF 0
+#define RED 1
+#define GREEN 2
+#define BLUE 3
+#define YELLOW 4
+
 #define DEBUG false
 
 //-----------BMP085 Barometer Variables---------
@@ -79,6 +85,12 @@ elapsedMillis timeElapsed;
 //----------SD Card Variables-------------------
 const int chipSelect = 10;
 char fileName[] = "log000.csv";
+
+//----------LED Variables-------------------
+int redPin = 3;
+int greenPin = 4;
+int bluePin = 5;
+boolean blink = false;
 
 //-----------BMP085 Barometer Functions---------
 void bmp085Init(){
@@ -409,8 +421,50 @@ void writeData(String data, char* file, boolean finishLine){
   }
 }
 
+//-----------Extra LED Functions-----
+void setLED(int color){
+    if (color == OFF){
+        digitalWrite(redPin, false);
+        digitalWrite(greenPin, false);
+        digitalWrite(bluePin, false);
+    }else if (color == RED){
+        digitalWrite(redPin, true);
+        digitalWrite(greenPin, false);
+        digitalWrite(bluePin, false);
+    }else if (color == GREEN){
+        digitalWrite(redPin, false);
+        digitalWrite(greenPin, true);
+        digitalWrite(bluePin, false);
+    }else if (color == BLUE){
+        digitalWrite(redPin, false);
+        digitalWrite(greenPin, false);
+        digitalWrite(bluePin, true);
+    }else if (color == YELLOW){
+        digitalWrite(redPin, true);
+        digitalWrite(greenPin, true);
+        digitalWrite(bluePin, false);
+    }
+}
+
+void blinkLED(int onColor, int offColor){
+    if (blink){
+        setLED(offColor);
+        blink = false;
+    }
+    else {
+        setLED(onColor);
+        blink = true;
+    }
+}
+
 //-----------Setup & Loop---------
 void setup(){
+    pinMode(redPin, OUTPUT);
+    pinMode(greenPin, OUTPUT);
+    pinMode(bluePin, OUTPUT);
+    
+    setLED(YELLOW);
+    
     if(DEBUG) Serial.begin(9600);
     Wire.begin();
     
@@ -426,45 +480,51 @@ void setup(){
     hmc5883lInit(1.3, HMC5883L_MEASURE_CONT);
     if(DEBUG) Serial.println("Magnemometer has been initialized"); 
   
-        if(DEBUG) Serial.print("Initializing SD card...");
-        // see if the card is present and can be initialized:
-        if (!SD.begin(chipSelect)) {
-          if(DEBUG) Serial.println("Card failed, or not present");
-          // don't do anything more:
-          return;
-        }
-        
-        for (uint8_t i = 0; i < 1000; i++){
-          fileName[3] = i/100 + '0';
-          fileName[4] = i/10 + '0';
-          fileName[5] = i%10 + '0';
-          if (SD.exists(fileName)) continue;
-          break;
-        }
-        
-        if(DEBUG) Serial.print("File name: ");
-        if(DEBUG) Serial.println(fileName);
-        
-        String dataString = "";
-        dataString += "Time (Milis), ";
-        dataString += "Pressure (Pa), ";
-        dataString += "x (g), ";
-        dataString += "y (g), ";
-        dataString += "z (g), ";
-        dataString += "gx, ";
-        dataString += "gy, ";
-        dataString += "gz, ";
-        dataString += "Temp (C), ";
-        dataString += "mx, ";
-        dataString += "my, ";
-        dataString += "mz, ";
-        dataString += "heading (rad)";
-        writeData(dataString, fileName, true);
+    setLED(BLUE);
+    
+    if(DEBUG) Serial.print("Initializing SD card...");
+    // see if the card is present and can be initialized:
+    if (!SD.begin(chipSelect)) {
+      if(DEBUG) Serial.println("Card failed, or not present");
+      // don't do anything more:
+      return;
+    }
+    
+    for (uint8_t i = 0; i < 1000; i++){
+      fileName[3] = i/100 + '0';
+      fileName[4] = i/10 + '0';
+      fileName[5] = i%10 + '0';
+      if (SD.exists(fileName)) continue;
+      break;
+    }
+    
+    if(DEBUG) Serial.print("File name: ");
+    if(DEBUG) Serial.println(fileName);
+    
+    String dataString = "";
+    dataString += "Time (Milis), ";
+    dataString += "Pressure (Pa), ";
+    dataString += "x (g), ";
+    dataString += "y (g), ";
+    dataString += "z (g), ";
+    dataString += "gx, ";
+    dataString += "gy, ";
+    dataString += "gz, ";
+    dataString += "Temp (C), ";
+    dataString += "mx, ";
+    dataString += "my, ";
+    dataString += "mz, ";
+    dataString += "heading (rad)";
+    writeData(dataString, fileName, true);
 
-        timeElapsed = 0;
+    setLED(GREEN);
+    timeElapsed = 0;
 }
 
 void loop(){
+    if(DEBUG) blinkLED(GREEN, YELLOW);
+    else blinkLED(GREEN, OFF);
+    
     String dataString = "";
     
     //Time Elapsed
