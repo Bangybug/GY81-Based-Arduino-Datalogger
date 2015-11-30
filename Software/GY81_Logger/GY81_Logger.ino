@@ -87,9 +87,9 @@ const int chipSelect = 10;
 char fileName[] = "log000.csv";
 
 //----------LED Variables-------------------
-int redPin = 3;
-int greenPin = 4;
-int bluePin = 5;
+int redPin = 2;
+int greenPin = 3;
+int bluePin = 4;
 boolean blink = false;
 
 //-----------BMP085 Barometer Functions---------
@@ -522,7 +522,7 @@ void setup(){
 }
 
 void loop(){
-    if(DEBUG) blinkLED(GREEN, YELLOW);
+    if(DEBUG) blinkLED(GREEN, BLUE);
     else blinkLED(GREEN, OFF);
     
     String dataString = "";
