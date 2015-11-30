@@ -417,6 +417,7 @@ void writeData(String data, char* file, boolean finishLine){
   else {
     if(DEBUG) Serial.print("error opening ");
     if(DEBUG) Serial.println(file);
+    setLED(RED);
     delay(1000);
   }
 }
