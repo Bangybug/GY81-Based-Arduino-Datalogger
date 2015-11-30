@@ -43,6 +43,7 @@
 #define BLUE 3
 #define YELLOW 4
 
+//Turns on Serial Output, slows down record speed.
 #define DEBUG false
 
 //-----------BMP085 Barometer Variables---------
