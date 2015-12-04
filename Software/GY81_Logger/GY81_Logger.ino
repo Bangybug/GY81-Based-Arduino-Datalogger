@@ -1,5 +1,4 @@
 // GY-81 Code
-
 #include <Wire.h>
 
 #include <SPI.h>
@@ -8,6 +7,9 @@
 #include <stdlib.h>
 
 #include <elapsedMillis.h>
+
+//Turns on Serial Output, slows down record speed.
+#define DEBUG false
 
 #define BMP085_ADDRESS 0x77  //address of the Barometer
 
@@ -42,9 +44,6 @@
 #define GREEN 2
 #define BLUE 3
 #define YELLOW 4
-
-//Turns on Serial Output, slows down record speed.
-#define DEBUG false
 
 //-----------BMP085 Barometer Variables---------
 const unsigned char OSS = 0;  // Oversampling Setting
@@ -92,6 +91,11 @@ int redPin = 2;
 int greenPin = 3;
 int bluePin = 4;
 boolean blink = false;
+
+//----------Switch Variables-------------------
+int switchPin = 9;
+int switchState = 0;
+boolean recording = false;
 
 //-----------BMP085 Barometer Functions---------
 void bmp085Init(){
@@ -459,11 +463,16 @@ void blinkLED(int onColor, int offColor){
     }
 }
 
+
+
+
 //-----------Setup & Loop---------
 void setup(){
     pinMode(redPin, OUTPUT);
     pinMode(greenPin, OUTPUT);
     pinMode(bluePin, OUTPUT);
+    
+    pinMode(switchPin, INPUT);
     
     setLED(YELLOW);
     
@@ -483,152 +492,168 @@ void setup(){
     if(DEBUG) Serial.println("Magnemometer has been initialized"); 
   
     setLED(BLUE);
-    
-    if(DEBUG) Serial.print("Initializing SD card...");
-    // see if the card is present and can be initialized:
-    if (!SD.begin(chipSelect)) {
-      if(DEBUG) Serial.println("Card failed, or not present");
-      // don't do anything more:
-      return;
-    }
-    
-    for (uint8_t i = 0; i < 1000; i++){
-      fileName[3] = i/100 + '0';
-      fileName[4] = i/10 + '0';
-      fileName[5] = i%10 + '0';
-      if (SD.exists(fileName)) continue;
-      break;
-    }
-    
-    if(DEBUG) Serial.print("File name: ");
-    if(DEBUG) Serial.println(fileName);
-    
-    String dataString = "";
-    dataString += "Time (Milis), ";
-    dataString += "Pressure (Pa), ";
-    dataString += "x (g), ";
-    dataString += "y (g), ";
-    dataString += "z (g), ";
-    dataString += "gx, ";
-    dataString += "gy, ";
-    dataString += "gz, ";
-    dataString += "Temp (C), ";
-    dataString += "mx, ";
-    dataString += "my, ";
-    dataString += "mz, ";
-    dataString += "heading (rad)";
-    writeData(dataString, fileName, true);
-
-    setLED(GREEN);
-    timeElapsed = 0;
 }
 
 void loop(){
-    if(DEBUG) blinkLED(GREEN, BLUE);
-    else blinkLED(GREEN, OFF);
+    switchState = digitalRead(switchPin);
+    if (switchState == HIGH){
+        if (!recording){
+            if(DEBUG) Serial.print("Initializing SD card...");
+            // see if the card is present and can be initialized:
+            if (!SD.begin(chipSelect)) {
+                if(DEBUG) Serial.println("Card failed, or not present");
+                // don't do anything more:
+                setLED(RED);
+                return;
+            }
     
-    String dataString = "";
+            for (uint8_t i = 0; i < 1000; i++){
+                fileName[3] = i/100 + '0';
+                fileName[4] = i/10 + '0';
+                fileName[5] = i%10 + '0';
+                if (SD.exists(fileName)) continue;
+                break;
+            }
     
-    //Time Elapsed
-    dataString = String(timeElapsed);
-    dataString += ",";
+            if(DEBUG) Serial.print("File name: ");
+            if(DEBUG) Serial.println(fileName);
     
-    //Pressure  
-    long pressure = bmp085GetPressure(bmp085ReadUP());
-    char tmp_pressure[15] = ""; 
-    dtostrf(pressure,9,2,&tmp_pressure[0]);
-    dataString += tmp_pressure;
-    dataString += ",";
-    
-    //Acceleration
-    int accel[3];
-    bma180GetAccelerometerData(accel);
-    float x1=accel[0]/a_scale;
-    char tmp_x1[15] = ""; 
-    dtostrf(x1,5,2,&tmp_x1[0]);
-    dataString += tmp_x1;
-    dataString += ",";
-     
-    float y1=accel[1]/a_scale;
-    char tmp_y1[15] = ""; 
-    dtostrf(y1,5,2,&tmp_y1[0]);
-    dataString += tmp_y1;
-    dataString += ",";
+            String dataString = "";
+            dataString += "Time (Milis), ";
+            dataString += "Pressure (Pa), ";
+            dataString += "x (g), ";
+            dataString += "y (g), ";
+            dataString += "z (g), ";
+            dataString += "gx, ";
+            dataString += "gy, ";
+            dataString += "gz, ";
+            dataString += "Temp (C), ";
+            dataString += "mx, ";
+            dataString += "my, ";
+            dataString += "mz, ";
+            dataString += "heading (rad)";
+            writeData(dataString, fileName, true);
 
-    float z1=accel[2]/a_scale;
-    char tmp_z1[15] = ""; 
-    dtostrf(z1,5,2,&tmp_z1[0]);
-    dataString += tmp_z1;
-    dataString += ",";
+            setLED(GREEN);
+            recording = true;
+            if(DEBUG) Serial.println("Starting to record");
+            timeElapsed = 0;
+        }
+  
+        if(DEBUG) blinkLED(GREEN, BLUE);
+        else blinkLED(GREEN, OFF);
     
-    writeData(dataString, fileName, false);
-    dataString = "";
+        String dataString = "";
+        
+        //Time Elapsed
+        dataString = String(timeElapsed);
+        dataString += ",";
+        
+        //Pressure  
+        long pressure = bmp085GetPressure(bmp085ReadUP());
+        char tmp_pressure[15] = ""; 
+        dtostrf(pressure,9,2,&tmp_pressure[0]);
+        dataString += tmp_pressure;
+        dataString += ",";
+        
+        //Acceleration
+        int accel[3];
+        bma180GetAccelerometerData(accel);
+        float x1=accel[0]/a_scale;
+        char tmp_x1[15] = ""; 
+        dtostrf(x1,5,2,&tmp_x1[0]);
+        dataString += tmp_x1;
+        dataString += ",";
+         
+        float y1=accel[1]/a_scale;
+        char tmp_y1[15] = ""; 
+        dtostrf(y1,5,2,&tmp_y1[0]);
+        dataString += tmp_y1;
+        dataString += ",";
     
-    //Gyro
-    int gyro[4];
-    itg3205GetGyroscopeData(gyro);
-    
-    float hx = gyro[0] / 14.375;
-    char tmp_hx[15] = ""; 
-    dtostrf(hx,5,2,&tmp_hx[0]);
-    dataString += tmp_hx;
-    dataString += ",";
-    
-    float hy = gyro[1] / 14.375;
-    char tmp_hy[15] = ""; 
-    dtostrf(hy,5,2,&tmp_hy[0]);
-    dataString += tmp_hy;
-    dataString += ",";
-    
-    float hz = gyro[2] / 14.375;
-    char tmp_hz[15] = ""; 
-    dtostrf(hz,5,2,&tmp_hz[0]);
-    dataString += tmp_hz;
-    dataString += ",";
-    
-    float turetemp = 35+ ((double) (gyro[3] + 13200)) / 280; // temperature
-    char tmp_turetemp[15] = ""; 
-    dtostrf(turetemp,5,2,&tmp_turetemp[0]);
-    dataString += tmp_turetemp;
-    dataString += ", ";
-    
-    writeData(dataString, fileName, false);
-    dataString = "";
-    
-    //Magnetometer
-    int mag[3];
-    hmc5883GetMagnetometerData(mag);
-    float mx = mag[0] * m_scale;
-    char tmp_mx[15] = ""; 
-    dtostrf(mx,5,2,&tmp_mx[0]);
-    dataString += tmp_mx;
-    dataString += ", ";
-    
-    float my = mag[1] * m_scale;
-    char tmp_my[15] = ""; 
-    dtostrf(my,5,2,&tmp_my[0]);
-    dataString += tmp_my;
-    dataString += ", ";
-    
-    float mz = mag[2] * m_scale;
-    char tmp_mz[15] = ""; 
-    dtostrf(mz,5,2,&tmp_mz[0]);
-    dataString += tmp_mz;
-    dataString += ", ";
-    
-    int MilliGauss_OnThe_XAxis = mx;
-    float heading = atan2(my, mx);
-    // Once you have your heading, you must then add your 'Declination Angle', which is  the 'Error' of the magnetic field in your location.
-    // Find yours here: http://www.magnetic-declination.com/
-    // Mine is: 2� 37' W, which is 2.617 Degrees, or (which we need) 0.0456752665  radians, I will use 0.0457
-    // If you cannot find your Declination, comment out these two lines, your compass  will be slightly off.
-    float declinationAngle = 0.0457;
-    heading += declinationAngle;
-    char tmp_heading[15] = ""; 
-    dtostrf(heading,5,2,&tmp_heading[0]);
-    dataString += tmp_heading;
-    
-    //SD Card
-    if(DEBUG) Serial.println(dataString);
-    writeData(dataString, fileName, true);    
+        float z1=accel[2]/a_scale;
+        char tmp_z1[15] = ""; 
+        dtostrf(z1,5,2,&tmp_z1[0]);
+        dataString += tmp_z1;
+        dataString += ",";
+        
+        writeData(dataString, fileName, false);
+        dataString = "";
+        
+        //Gyro
+        int gyro[4];
+        itg3205GetGyroscopeData(gyro);
+        
+        float hx = gyro[0] / 14.375;
+        char tmp_hx[15] = ""; 
+        dtostrf(hx,5,2,&tmp_hx[0]);
+        dataString += tmp_hx;
+        dataString += ",";
+        
+        float hy = gyro[1] / 14.375;
+        char tmp_hy[15] = ""; 
+        dtostrf(hy,5,2,&tmp_hy[0]);
+        dataString += tmp_hy;
+        dataString += ",";
+        
+        float hz = gyro[2] / 14.375;
+        char tmp_hz[15] = ""; 
+        dtostrf(hz,5,2,&tmp_hz[0]);
+        dataString += tmp_hz;
+        dataString += ",";
+        
+        float turetemp = 35+ ((double) (gyro[3] + 13200)) / 280; // temperature
+        char tmp_turetemp[15] = ""; 
+        dtostrf(turetemp,5,2,&tmp_turetemp[0]);
+        dataString += tmp_turetemp;
+        dataString += ", ";
+        
+        writeData(dataString, fileName, false);
+        dataString = "";
+        
+        //Magnetometer
+        int mag[3];
+        hmc5883GetMagnetometerData(mag);
+        float mx = mag[0] * m_scale;
+        char tmp_mx[15] = ""; 
+        dtostrf(mx,5,2,&tmp_mx[0]);
+        dataString += tmp_mx;
+        dataString += ", ";
+        
+        float my = mag[1] * m_scale;
+        char tmp_my[15] = ""; 
+        dtostrf(my,5,2,&tmp_my[0]);
+        dataString += tmp_my;
+        dataString += ", ";
+        
+        float mz = mag[2] * m_scale;
+        char tmp_mz[15] = ""; 
+        dtostrf(mz,5,2,&tmp_mz[0]);
+        dataString += tmp_mz;
+        dataString += ", ";
+        
+        int MilliGauss_OnThe_XAxis = mx;
+        float heading = atan2(my, mx);
+        // Once you have your heading, you must then add your 'Declination Angle', which is  the 'Error' of the magnetic field in your location.
+        // Find yours here: http://www.magnetic-declination.com/
+        // Mine is: 2� 37' W, which is 2.617 Degrees, or (which we need) 0.0456752665  radians, I will use 0.0457
+        // If you cannot find your Declination, comment out these two lines, your compass  will be slightly off.
+        float declinationAngle = 0.0457;
+        heading += declinationAngle;
+        char tmp_heading[15] = ""; 
+        dtostrf(heading,5,2,&tmp_heading[0]);
+        dataString += tmp_heading;
+        
+        //SD Card
+        if(DEBUG) Serial.println(dataString);
+        writeData(dataString, fileName, true);    
+    } else {
+      if (recording){
+         if(DEBUG) Serial.println("Done Recording, card is safe to remove");
+      }
+      recording = false;
+      setLED(BLUE);
+      delay(500);
+    }
+
 }
