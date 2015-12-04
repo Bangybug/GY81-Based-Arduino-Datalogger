@@ -44,6 +44,8 @@
 #define GREEN 2
 #define BLUE 3
 #define YELLOW 4
+#define WHITE 5
+#define CYAN 6
 
 //-----------BMP085 Barometer Variables---------
 const unsigned char OSS = 0;  // Oversampling Setting
@@ -96,6 +98,11 @@ boolean blink = false;
 int switchPin = 9;
 int switchState = 0;
 boolean recording = false;
+
+//----------Voltage Variables---------------
+long voltage = 0;
+long dropout = 4500;
+
 
 //-----------BMP085 Barometer Functions---------
 void bmp085Init(){
@@ -402,7 +409,7 @@ void readFrom(int DEVICE, byte address , int num ,byte buff[]){
     Wire.endTransmission();         //end transmission
 }
 
-//-----------Extra SD Card Functions-----
+//-----------SD Card Functions-----
 void writeData(String data, char* file, boolean finishLine){
   File dataFile = SD.open(file, FILE_WRITE);
 
@@ -427,7 +434,7 @@ void writeData(String data, char* file, boolean finishLine){
   }
 }
 
-//-----------Extra LED Functions-----
+//-----------LED Functions-----
 void setLED(int color){
     if (color == OFF){
         digitalWrite(redPin, false);
@@ -449,6 +456,14 @@ void setLED(int color){
         digitalWrite(redPin, true);
         digitalWrite(greenPin, true);
         digitalWrite(bluePin, false);
+    }else if (color == WHITE){
+        digitalWrite(redPin, true);
+        digitalWrite(greenPin, true);
+        digitalWrite(bluePin, true);
+    }else if (color == CYAN){
+        digitalWrite(redPin, false);
+        digitalWrite(greenPin, true);
+        digitalWrite(bluePin, true);
     }
 }
 
@@ -463,8 +478,35 @@ void blinkLED(int onColor, int offColor){
     }
 }
 
+//-----------Voltage Functions-----
+long readVcc() {
+  // Read 1.1V reference against AVcc
+  // set the reference to Vcc and the measurement to the internal 1.1V reference
+  #if defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
+    ADMUX = _BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
+  #elif defined (__AVR_ATtiny24__) || defined(__AVR_ATtiny44__) || defined(__AVR_ATtiny84__)
+    ADMUX = _BV(MUX5) | _BV(MUX0);
+  #elif defined (__AVR_ATtiny25__) || defined(__AVR_ATtiny45__) || defined(__AVR_ATtiny85__)
+    ADMUX = _BV(MUX3) | _BV(MUX2);
+  #else
+    ADMUX = _BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1);
+  #endif  
 
+  delay(2); // Wait for Vref to settle
+  
+  ADCSRA |= _BV(ADSC); // Start conversion
+  while (bit_is_set(ADCSRA,ADSC)); // measuring
 
+  uint8_t low  = ADCL; // must read ADCL first - it then locks ADCH  
+  uint8_t high = ADCH; // unlocks both
+
+  long result = (high<<8) | low;
+    
+  result = 1125300L / result; // Calculate Vcc (in mV); 1125300 = 1.1*1023*1000
+  if(DEBUG) Serial.print(result);
+  if(DEBUG) Serial.println(" millivolts");
+  return result; // Vcc in millivolts
+} 
 
 //-----------Setup & Loop---------
 void setup(){
@@ -496,7 +538,8 @@ void setup(){
 
 void loop(){
     switchState = digitalRead(switchPin);
-    if (switchState == HIGH){
+    voltage = readVcc();
+    if (switchState == HIGH && voltage > dropout){
         if (!recording){
             if(DEBUG) Serial.print("Initializing SD card...");
             // see if the card is present and can be initialized:
@@ -652,7 +695,8 @@ void loop(){
          if(DEBUG) Serial.println("Done Recording, card is safe to remove");
       }
       recording = false;
-      setLED(BLUE);
+      if (voltage <= dropout) setLED(CYAN);
+      else setLED(BLUE);
       delay(500);
     }
 
