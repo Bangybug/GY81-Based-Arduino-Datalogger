@@ -1,5 +1,4 @@
 // GY-81 Code
-//test for fred
 #include <Wire.h>
 
 #include <SPI.h>
